@@ -244,7 +244,7 @@ class DistrSystem(object):
 					tot_iters += 1
 			if self.FLAGS.val is not None:
 				if (cycle + 1) % self.FLAGS.val_freq == 0:
-					train_sample = np.random.choice(self.inst_dict.keys(), self.FLAGS.val_size)
+					train_sample = np.random.choice(list(self.inst_dict.keys()), self.FLAGS.val_size)
 					val_sample = np.random.choice(list(val_set), self.FLAGS.val_size)
 					logging.info('='*90)
 					train_loss, train_acc = self.test(session, train_sample, True)
