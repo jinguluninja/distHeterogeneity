@@ -64,8 +64,8 @@ class DistrSystem(object):
 		fig = plt.figure()
 		plt.xlabel('Epochs')
 		plt.ylabel(y_label)
-		plt.plot(train_iters / (len(inst_dict) / (self.FLAGS.num_inst * self.FLAGS.batch_size)), train_vals)
-		plt.plot(val_iters / (len(inst_dict) / (self.FLAGS.num_inst * self.FLAGS.batch_size)), val_vals)
+		plt.plot(train_iters / (len(self.inst_dict) / (self.FLAGS.num_inst * self.FLAGS.batch_size)), train_vals)
+		plt.plot(val_iters / (len(self.inst_dict) / (self.FLAGS.num_inst * self.FLAGS.batch_size)), val_vals)
 		if y_label == 'Loss':      
 			fig.savefig(self.FLAGS.loss_curve, bbox_inches='tight')
 		else:
@@ -112,7 +112,7 @@ class DistrSystem(object):
 		input_feed[self.is_training] = True
 		output_feed = [self.updates, self.loss, self.predictions]
 		outputs = session.run(output_feed, input_feed)
-		return outputs[1]/len(sample), self.accuracy(outputs[2], np.asarray(y, dtype=int))
+		return outputs[1], self.accuracy(outputs[2], np.asarray(y, dtype=int))
 
 	def test(self, session, test_set, val):
 		if val:
@@ -138,7 +138,7 @@ class DistrSystem(object):
 			end = batch_indices[b_end]
 			test_set_batch = test_set[start:end]
 			y_batch = y[start:end]  
-			x = np.zeros([end-start+1, self.FLAGS.img_height, self.FLAGS.img_width, self.FLAGS.img_channels], dtype=np.float32)
+			x = np.zeros([end-start, self.FLAGS.img_height, self.FLAGS.img_width, self.FLAGS.img_channels], dtype=np.float32)
 			for i in range(len(test_set_batch)):
 				img = None
 				if val:
@@ -239,18 +239,27 @@ class DistrSystem(object):
 				inst_iters = self.inst_iters_per_cycle[inst]
 				for i in range(inst_iters):
 					sample = self.get_train_sample(train_sets[inst])
-					train_loss, train_acc = self.optimize(session, sample, inst) 
+					train_loss, train_acc = self.optimize(session, sample, inst)
 					logging.info('Iter: %s, Cycle: %s, Inst: %s, train loss: %.3f, train acc: %.3f' % (tot_iters, cycle, inst, train_loss, train_acc))
 					tot_iters += 1
 			if self.FLAGS.val is not None:
-				if cycle + 1 % self.FLAGS.val_freq == 0:
+				if (cycle + 1) % self.FLAGS.val_freq == 0:
+					train_sample = np.random.choice(self.inst_dict.keys(), self.FLAGS.val_size)
 					val_sample = np.random.choice(list(val_set), self.FLAGS.val_size)
 					logging.info('='*90)
+					train_loss, train_acc = self.test(session, train_sample, True)
+					train_iters.append(tot_iters)
+					train_losses.append(train_loss)
+					train_accs.append(train_acc)
 					val_loss, val_acc = self.test(session, val_sample, True)
+					val_iters.append(tot_iters)
+					val_losses.append(val_loss)
+					val_accs.append(val_acc)					
 					if self.FLAGS.loss_curve is not None:
 						self.graph(np.asarray(train_iters, dtype=float), train_losses, np.asarray(val_iters, dtype=float), val_losses, 'Loss')
 					if self.FLAGS.acc_curve is not None:
-						self.graph(np.asarray(train_iters, dtype=float), train_acc, np.asarray(val_iters, dtype=float), val_acc, 'Accuracy')
+						self.graph(np.asarray(train_iters, dtype=float), train_accs, np.asarray(val_iters, dtype=float), val_accs, 'Accuracy')
+					logging.info('Cycle: %s, train loss: %.3f, train acc: %.3f' % (cycle, train_loss, train_acc))
 					logging.info('Cycle: %s, val loss: %.3f, val acc: %.3f' % (cycle, val_loss, val_acc))
 					if val_loss < best_val_loss:
 						logging.info('NEW BEST VALIDATION LOSS: %s, SAVING' % (val_loss))

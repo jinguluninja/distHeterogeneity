@@ -40,7 +40,7 @@ tf.app.flags.DEFINE_boolean('prop_iter', False, 'whether or not to train at each
 tf.app.flags.DEFINE_boolean('prop_lr', False, 'whether or not to use lr at each instutition proportional to number of data samples')
 
 FLAGS = tf.app.flags.FLAGS
-logging.basicConfig(filename=FLAGS.log, filemode='a', level=logging.INFO)
+logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler(FLAGS.log), logging.StreamHandler()])
 
 def initialize_model(session, model):
     if FLAGS.load is not None:
