@@ -114,8 +114,8 @@ class DistrSystem(object):
 		outputs = session.run(output_feed, input_feed)
 		return outputs[1], self.accuracy(outputs[2], np.asarray(y, dtype=int))
 
-	def test(self, session, test_set, val):
-		if val:
+	def test(self, session, test_set, dataset):
+		if dataset == 'val' or dataset == 'train':
 			logging.info('VALIDATING')
 		else:
 			logging.info('TESTING')
@@ -141,7 +141,9 @@ class DistrSystem(object):
 			x = np.zeros([end-start, self.FLAGS.img_height, self.FLAGS.img_width, self.FLAGS.img_channels], dtype=np.float32)
 			for i in range(len(test_set_batch)):
 				img = None
-				if val:
+				if dataset == 'train':
+					img = np.load(os.path.join(self.FLAGS.train, test_set_batch[i]))
+				elif dataset == 'val':
 					img = np.load(os.path.join(self.FLAGS.val, test_set_batch[i]))
 				else:
 					img = np.load(os.path.join(self.FLAGS.test, test_set_batch[i]))
@@ -247,11 +249,11 @@ class DistrSystem(object):
 					train_sample = np.random.choice(list(self.inst_dict.keys()), self.FLAGS.val_size)
 					val_sample = np.random.choice(list(val_set), self.FLAGS.val_size)
 					logging.info('='*90)
-					train_loss, train_acc = self.test(session, train_sample, True)
+					train_loss, train_acc = self.test(session, train_sample, 'train')
 					train_iters.append(tot_iters)
 					train_losses.append(train_loss)
 					train_accs.append(train_acc)
-					val_loss, val_acc = self.test(session, val_sample, True)
+					val_loss, val_acc = self.test(session, val_sample, 'val')
 					val_iters.append(tot_iters)
 					val_losses.append(val_loss)
 					val_accs.append(val_acc)					

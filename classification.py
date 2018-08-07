@@ -70,7 +70,7 @@ def main(_):
             classifier.train(sess, train, val) 
         if FLAGS.test is not None:
             test = [os.listdir(FLAGS.test)]
-            test_loss, test_acc = classifier.test(sess, test, False) 
+            test_loss, test_acc = classifier.test(sess, test, 'test') 
             logging.info('test loss: %.3f, test acc: %.3f' % (test_loss, test_acc))
 
 
