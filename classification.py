@@ -11,7 +11,7 @@ tf.app.flags.DEFINE_string('train', None, 'train data path (None to not train)')
 tf.app.flags.DEFINE_integer('num_inst', 4, 'number of training institutions')
 tf.app.flags.DEFINE_string('train_split', None, 'path to training institution split file')
 tf.app.flags.DEFINE_integer('num_epochs', 1, 'number of epochs to train at an institution each cycle')
-tf.app.flags.DEFINE_integer('max_cycles', 15, 'number of cycles of epochs to train')
+tf.app.flags.DEFINE_integer('max_cycles', 200, 'number of cycles of epochs to train')
 tf.app.flags.DEFINE_string('val', None, 'val data path (None if no val set)')
 tf.app.flags.DEFINE_integer('val_freq', 1, 'validates every val_freq cycles')
 tf.app.flags.DEFINE_integer('val_size', 128, 'val set sample size when validating')
@@ -63,7 +63,7 @@ def main(_):
     with tf.Session() as sess:
         initialize_model(sess, classifier)
         if FLAGS.train is not None:
-            val = None if FLAGS.val is None else set([os.listdir(FLAGS.val)])
+            val = None if FLAGS.val is None else set(os.listdir(FLAGS.val))
             train = {i: set() for i in range(FLAGS.num_inst)}
             for i in institutions:
                 train[institutions[i]].add(i)

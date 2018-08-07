@@ -434,4 +434,4 @@ def Res_Net(layer, is_training, class_num, batch_size, keep_prob=1.0, name="Res_
     layer = tf.nn.avg_pool(layer, ksize=[1,size_pool,size_pool,1], strides=[1,1,1,1], padding='VALID')
     layer = tf.nn.dropout(layer, keep_prob)
     layer = dense_w_bias(layer, class_num, name=name+'_output')
-return layer
+    return layer

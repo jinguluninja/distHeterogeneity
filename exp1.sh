@@ -1,0 +1,1 @@
+python classification.py --labels ./labels.csv --train data/train/ --train_split ./train1.csv --max_cycles 20 --val data/val/ --val_size 320 --test data/train/ --save model1/ --log ./log.txt --loss_curve graph/loss.png --acc_curve graph/acc.png --model linear --weighted_loss False --weighted_samples False --prop_iter False --prop_lr False
