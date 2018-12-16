@@ -9,7 +9,6 @@ from tensorflow.python.ops import variable_scope as vs
 from matplotlib import pyplot as plt
 from nets_classification import *
 
-
 class DistrSystem(object):
 	def __init__(self, FLAGS, labels, institutions):
 		logging.basicConfig(filename=FLAGS.log, filemode='a', level=logging.INFO)
@@ -21,7 +20,7 @@ class DistrSystem(object):
 		self.labels = tf.placeholder(tf.int32, shape=[None])
 		self.loss_weights = tf.placeholder(tf.float32, shape=[None])
 		self.lr = tf.placeholder(tf.float32)
-		self.is_training = tf.placeholder(tf.bool)
+		self.is_training = tf.placeholder(tf.uint8)
 		self.keep_prob = tf.placeholder(tf.float32)
 
 		if FLAGS.model == 'linear':
@@ -109,7 +108,7 @@ class DistrSystem(object):
 		input_feed[self.lr] = self.inst_lr[inst]
 		input_feed[self.loss_weights] = [self.loss_weights_dict[i] for i in sample]
 		input_feed[self.keep_prob] = 1.-self.FLAGS.dropout
-		input_feed[self.is_training] = True
+		input_feed[self.is_training] = 1
 		output_feed = [self.updates, self.loss, self.predictions]
 		outputs = session.run(output_feed, input_feed)
 		return outputs[1], self.accuracy(outputs[2], np.asarray(y, dtype=int))
@@ -156,7 +155,7 @@ class DistrSystem(object):
 			input_feed[self.labels] = y_batch
 			input_feed[self.loss_weights] = [1.0 for i in test_set_batch]
 			input_feed[self.keep_prob] = 1.
-			input_feed[self.is_training] = False         
+			input_feed[self.is_training] = 0         
 
 			output_feed = [self.loss, self.predictions]
 
@@ -246,8 +245,10 @@ class DistrSystem(object):
 					tot_iters += 1
 			if self.FLAGS.val is not None:
 				if (cycle + 1) % self.FLAGS.val_freq == 0:
-					train_sample = np.random.choice(list(self.inst_dict.keys()), self.FLAGS.val_size)
-					val_sample = np.random.choice(list(val_set), self.FLAGS.val_size)
+					# train_sample = np.random.choice(list(self.inst_dict.keys()), self.FLAGS.val_size)
+					train_sample = list(self.inst_dict.keys())
+					# val_sample = np.random.choice(list(val_set), self.FLAGS.val_size)
+					val_sample = list(val_set)
 					logging.info('='*90)
 					train_loss, train_acc = self.test(session, train_sample, 'train')
 					train_iters.append(tot_iters)

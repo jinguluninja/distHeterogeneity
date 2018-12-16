@@ -32,7 +32,7 @@ tf.app.flags.DEFINE_integer("batch_size", 32, 'training batch size')
 tf.app.flags.DEFINE_float('lr', 0.001, 'learning rate')
 tf.app.flags.DEFINE_float('decay', 1.0, 'learning rate decay after each epoch')
 tf.app.flags.DEFINE_float('dropout', 0.0, 'dropout probability')
-tf.app.flags.DEFINE_boolean('augment', True, 'whether or not to perform data augmentation')
+tf.app.flags.DEFINE_boolean('augment', False, 'whether or not to perform data augmentation')
 
 tf.app.flags.DEFINE_boolean('weighted_loss', False, 'whether or not to weight loss function')
 tf.app.flags.DEFINE_boolean('weighted_samples', False, 'whether or not to weight training samples in random batch selection')
